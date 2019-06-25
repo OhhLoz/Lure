@@ -1,10 +1,7 @@
 node_modules
 config\.json
 
-bfg-1\.13\.0\.jar
-
-BOTCOMMANDS\.txt
-
 err.log
 out.log
-HLTVBot/
+
+bot\.py
