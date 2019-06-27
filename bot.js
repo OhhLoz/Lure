@@ -7,10 +7,9 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.0.0";
+const versionNumber = "1.1.0";
 
 const redditPrefix = "https://www.reddit.com"
-
 
 client.on("ready", () =>
 {
@@ -40,8 +39,27 @@ client.on("message", async message =>
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
 
+  if (command == "lure")
+  {
+    var embed = new Discord.RichEmbed()
+    .setTitle("Help")
+    .setColor(0xff8d00)
+    .setTimestamp()
+    .setFooter("Sent by Lure", client.user.avatarURL)
+    .addField(".lure", "Lists all current commands", false)
+    .addField(".clip [arg]", "Plays a sound clip in a voice channel")
+    .addField(".clips", "Lists all available sound clips")
+    .addBlankField()
+    .addField(".dank [arg]", "Displays a random image from r/dankmemes, arg is the time [all, day, week, month, year], default: week")
+    .addField(".memes [arg]", "Displays a random image from r/memes, arg is the time [all, day, week, month, year], default: week")
+    .addField(".reddit [arg1] [arg2] [arg3]", "arg1 [image, post], arg2 is the subreddit, arg3 is the time [all, day, week, month, year], default: week")
+    .addField(".copypasta [arg]", "Displays a random text post from r/copypasta, arg is the time [all, day, week, month, year], default: all")
+
+    message.channel.send(embed);
+  }
+
   // VOICE COMMANDS
-  if (command == "clip")
+  if (command == "clip") // add clip
   {
     if(args.length == 0)
     {
@@ -53,17 +71,17 @@ client.on("message", async message =>
       if (clip == undefined)
         return message.channel.send("Please enter a valid clip to play, use .clips for a list");
 
-        const { voiceChannel } = message.member;
+      const { voiceChannel } = message.member;
 
-        if (!voiceChannel) {
-          return message.reply('please join a voice channel first!');
-        }
-        voiceChannel.join().then(connection =>
-        {
-          const stream = ytdl(clip, { filter: 'audioonly' });
-          const dispatcher = connection.playStream(stream);
-          dispatcher.on('end', () => voiceChannel.leave());
-        });
+      if (!voiceChannel) {
+        return message.reply('please join a voice channel first!');
+      }
+      voiceChannel.join().then(connection =>
+      {
+        const stream = ytdl(clip, { filter: 'audioonly' });
+        const dispatcher = connection.playStream(stream);
+        dispatcher.on('end', () => voiceChannel.leave());
+      });
     }
   }
 
@@ -108,7 +126,7 @@ client.on("message", async message =>
       const embed = new Discord.RichEmbed()
       .setColor(0x00A2E8)
       .setURL(redditPrefix + allowed[randomnumber].data.permalink)
-      .setTitle(allowed[randomnumber].data.title)
+      .setTitle(allowed[randomnumber].data.title.substring(0, 256))
       .setDescription("Posted by: " + allowed[randomnumber].data.author)
       .setImage(allowed[randomnumber].data.url)
       .addField("Other info:", "Upvotes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
@@ -136,7 +154,7 @@ client.on("message", async message =>
       const embed = new Discord.RichEmbed()
       .setColor(0x00A2E8)
       .setURL(redditPrefix + allowed[randomnumber].data.permalink)
-      .setTitle(allowed[randomnumber].data.title)
+      .setTitle(allowed[randomnumber].data.title.substring(0, 256))
       .setDescription("Posted by: " + allowed[randomnumber].data.author)
       .setImage(allowed[randomnumber].data.url)
       .addField("Other info:", "Upvotes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
@@ -157,12 +175,34 @@ client.on("message", async message =>
       const embed = new Discord.RichEmbed()
       .setColor(0x00A2E8)
       .setURL(redditPrefix + allowed[randomnumber].data.permalink)
-      .setTitle(allowed[randomnumber].data.title)
+      .setTitle(allowed[randomnumber].data.title.substring(0, 256))
       .setDescription(allowed[randomnumber].data.selftext.substring(0, 2048))
       .addField("Other info:", "Upvotes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments + " / Author: " + allowed[randomnumber].data.author)
       .setFooter("Post provided by " + allowed[randomnumber].data.subreddit_name_prefixed)
       message.channel.send(embed)
     }
+  }
+
+  if (command == "copypasta")
+  {
+    var time = 'all';
+    if (args[2] != null)
+      time = args[2];
+    const { body } = await snekfetch
+    .get('https://www.reddit.com/r/copypasta.json?sort=top&t=all')
+    .query({ limit: 800 });
+
+    const allowed = message.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18 && !post.data.is_video && post.data.media == null && !post.data.media_only && post.data.thumbnail == "self");
+    if (!allowed.length) return message.channel.send('It seems we are out of fresh posts!, Try again later.');
+    const randomnumber = Math.floor(Math.random() * allowed.length)
+    const embed = new Discord.RichEmbed()
+    .setColor(0x00A2E8)
+    .setURL(redditPrefix + allowed[randomnumber].data.permalink)
+    .setTitle(allowed[randomnumber].data.title.substring(0, 256))
+    .setDescription(allowed[randomnumber].data.selftext.substring(0, 2048))
+    .addField("Other info:", "Upvotes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments + " / Author: " + allowed[randomnumber].data.author)
+    .setFooter("Post provided by " + allowed[randomnumber].data.subreddit_name_prefixed)
+    message.channel.send(embed)
   }
 });
 
