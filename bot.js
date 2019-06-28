@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.1";
+const versionNumber = "1.2.2";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -65,16 +65,16 @@ client.on("message", async message =>
       .addField(".lure stats", "Displays the statistics of the bot (servercount, usercount & channelcount)", false)
       .addBlankField()
       .addField(".clip [arg]", "Plays a sound clip in a voice channel")
+      .addField(".[clipname]", "Plays the specified clip, alternate command to .clip for faster typing")
       .addField(".clips", "Lists all available sound clips")
       .addField(".addclip [arg1] [arg2]", "Add a clip to the database with name arg1 and source arg2, arg1 = 'default' to add the default clips")
       .addField(".delclip [arg1]", "Deletes the clip with name arg1, arg1 = 'all' to delete all clips, arg1 = 'default' to delete default clips")
-      .addField(".[clipname]", "Plays the specified clip, alternate command to .clip [arg] for faster typing")
       .addBlankField()
       .addField(".dank [arg]", "Displays a random image from r/dankmemes, arg is the time [all, day, week, month, year], default: week")
       .addField(".memes [arg]", "Displays a random image from r/memes, arg is the time [all, day, week, month, year], default: week")
       .addField(".reddit [arg1] [arg2] [arg3]", "arg1 [image, post], arg2 is the subreddit, arg3 is the time [all, day, week, month, year], default: week")
       .addField(".copypasta [arg]", "Displays a random text post from r/copypasta, arg is the time [all, day, week, month, year], default: all")
-  
+
       message.channel.send(embed);
     }
     else if (args[0] == "ping")
@@ -124,9 +124,13 @@ client.on("message", async message =>
 
       const { voiceChannel } = message.member;
 
+
+
       if (!voiceChannel) {
         return message.reply('please join a voice channel first!');
       }
+
+      message.react('🔊');
       voiceChannel.join().then(connection =>
       {
         const stream = ytdl(clip, { filter: 'audioonly' });
@@ -147,6 +151,7 @@ client.on("message", async message =>
     if (!voiceChannel) {
       return message.reply('please join a voice channel first!');
     }
+    message.react('🔊');
     voiceChannel.join().then(connection =>
     {
       const stream = ytdl(clip, { filter: 'audioonly' });
@@ -195,17 +200,6 @@ client.on("message", async message =>
 
   if (command == "clips")
   {
-    // var outputMsg = "";
-    // var count = 1;
-    // for (var tempKey in clipsDict)
-    // {
-    //   outputMsg += tempKey;
-    //   if(count != Object.keys(clipsDict).length)
-    //     outputMsg += ", ";
-    //   count++;
-    // }
-    //message.channel.send(outputMsg);
-
     var embed = new Discord.RichEmbed()
     .setTitle("Clips")
     .setColor(0xff8d00)

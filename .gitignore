@@ -5,3 +5,5 @@ err.log
 out.log
 
 bot\.py
+
+data/
