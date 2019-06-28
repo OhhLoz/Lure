@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.0";
+const versionNumber = "1.2.1";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -51,24 +51,62 @@ client.on("message", async message =>
 
   if (command == "lure")
   {
-    var embed = new Discord.RichEmbed()
-    .setTitle("Help")
-    .setColor(0xff8d00)
-    .setTimestamp()
-    .setFooter("Sent by Lure", client.user.avatarURL)
-    .addField(".lure", "Lists all current commands", false)
-    .addField(".clip [arg]", "Plays a sound clip in a voice channel")
-    .addField(".clips", "Lists all available sound clips")
-    .addField(".addclip [arg1] [arg2]", "Add a clip to the database with name arg1 and source arg2, arg1 = 'default' to add the default clips")
-    .addField(".delclip [arg1]", "Deletes the clip with name arg1, arg1 = 'all' to delete all clips, arg1 = 'default' to delete default clips")
-    .addField(".[clipname]", "Plays the specified clip, alternate command to .clip [arg] for faster typing")
-    .addBlankField()
-    .addField(".dank [arg]", "Displays a random image from r/dankmemes, arg is the time [all, day, week, month, year], default: week")
-    .addField(".memes [arg]", "Displays a random image from r/memes, arg is the time [all, day, week, month, year], default: week")
-    .addField(".reddit [arg1] [arg2] [arg3]", "arg1 [image, post], arg2 is the subreddit, arg3 is the time [all, day, week, month, year], default: week")
-    .addField(".copypasta [arg]", "Displays a random text post from r/copypasta, arg is the time [all, day, week, month, year], default: all")
+    if (args.length == 0)
+    {
+      var embed = new Discord.RichEmbed()
+      .setTitle("Help")
+      .setColor(0xff8d00)
+      .setTimestamp()
+      .setFooter("Sent by Lure", client.user.avatarURL)
+      .addField(".lure", "Lists all current commands", false)
+      .addField(".lure version", "Displays the current version number of the bot", false)
+      .addField(".lure ping", "Displays the current version number of the bot", false)
+      .addField(".lure contact", "Displays the contact information (if there are any bugs to report)", false)
+      .addField(".lure stats", "Displays the statistics of the bot (servercount, usercount & channelcount)", false)
+      .addBlankField()
+      .addField(".clip [arg]", "Plays a sound clip in a voice channel")
+      .addField(".clips", "Lists all available sound clips")
+      .addField(".addclip [arg1] [arg2]", "Add a clip to the database with name arg1 and source arg2, arg1 = 'default' to add the default clips")
+      .addField(".delclip [arg1]", "Deletes the clip with name arg1, arg1 = 'all' to delete all clips, arg1 = 'default' to delete default clips")
+      .addField(".[clipname]", "Plays the specified clip, alternate command to .clip [arg] for faster typing")
+      .addBlankField()
+      .addField(".dank [arg]", "Displays a random image from r/dankmemes, arg is the time [all, day, week, month, year], default: week")
+      .addField(".memes [arg]", "Displays a random image from r/memes, arg is the time [all, day, week, month, year], default: week")
+      .addField(".reddit [arg1] [arg2] [arg3]", "arg1 [image, post], arg2 is the subreddit, arg3 is the time [all, day, week, month, year], default: week")
+      .addField(".copypasta [arg]", "Displays a random text post from r/copypasta, arg is the time [all, day, week, month, year], default: all")
+  
+      message.channel.send(embed);
+    }
+    else if (args[0] == "ping")
+    {
+      // Calculates ping between sending a message and editing it, giving a nice round-trip latency.
+      // The second ping is an average latency between the bot and the websocket server (one-way, not round-trip)
+      const m = await message.channel.send("Calculating");
+      m.edit(`Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
+    }
+    else if (args[0] == "version")
+    {
+      var outputStr = `Lure is currently running version: ${versionNumber}`;
+      //console.log(outputStr);
+      message.channel.send(outputStr);
+    }
+    else if (args[0] == "contact")
+    {
+      var outputStr = `The best method of contacting is on the github page, issues can be made here: https://github.com/OhhLoz/Lure`;
+      //console.log(outputStr);
+      message.channel.send(outputStr);
+    }
+    else if (args[0] == "stats")
+    {
+      var outputStr = `Lure is currently serving ${client.users.filter(user => !user.bot).size} users, in ${client.channels.size} channels of ${client.guilds.size} servers. Alongside ${client.users.filter(user => user.bot).size} bot brothers.`;
+      //console.log(outputStr);
+      message.channel.send(outputStr);
+    }
+    else
+    {
+      message.channel.send("Invalid Command, use .lure for commands");
+    }
 
-    message.channel.send(embed);
   }
 
   // VOICE COMMANDS
