@@ -2,14 +2,22 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const ytdl = require('ytdl-core');
 const snekfetch = require('snekfetch');
+const enmap = require("enmap");
 
 const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.1.0";
+const versionNumber = "1.2.0";
 
-const redditPrefix = "https://www.reddit.com"
+const redditPrefix = "https://www.reddit.com";
+
+client.settings = new enmap({
+  name:"clips",
+  fetchAll: false,
+  autoFetch: true,
+  cloneLevel: 'deep'
+});
 
 client.on("ready", () =>
 {
@@ -35,6 +43,8 @@ client.on("message", async message =>
   // Ignore any message that does not start with our prefix
   if(message.content.indexOf(config.prefix) !== 0) return;
 
+  const guildConf = client.settings.ensure(message.guild.id, clipsDict);
+
   // Separate our command names, and command arguments
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
@@ -49,6 +59,9 @@ client.on("message", async message =>
     .addField(".lure", "Lists all current commands", false)
     .addField(".clip [arg]", "Plays a sound clip in a voice channel")
     .addField(".clips", "Lists all available sound clips")
+    .addField(".addclip [arg1] [arg2]", "Add a clip to the database with name arg1 and source arg2, arg1 = 'default' to add the default clips")
+    .addField(".delclip [arg1]", "Deletes the clip with name arg1, arg1 = 'all' to delete all clips, arg1 = 'default' to delete default clips")
+    .addField(".[clipname]", "Plays the specified clip, alternate command to .clip [arg] for faster typing")
     .addBlankField()
     .addField(".dank [arg]", "Displays a random image from r/dankmemes, arg is the time [all, day, week, month, year], default: week")
     .addField(".memes [arg]", "Displays a random image from r/memes, arg is the time [all, day, week, month, year], default: week")
@@ -59,7 +72,7 @@ client.on("message", async message =>
   }
 
   // VOICE COMMANDS
-  if (command == "clip") // add clip
+  if (command == "clip")
   {
     if(args.length == 0)
     {
@@ -67,7 +80,7 @@ client.on("message", async message =>
     }
     else
     {
-      var clip = clipsDict[args[0]];
+      var clip = client.settings.get(message.guild.id, args[0]);
       if (clip == undefined)
         return message.channel.send("Please enter a valid clip to play, use .clips for a list");
 
@@ -85,18 +98,88 @@ client.on("message", async message =>
     }
   }
 
+  if (guildConf.hasOwnProperty(command))
+  {
+    var clip = client.settings.get(message.guild.id, command);
+    if (clip == undefined)
+      return message.channel.send("Please enter a valid clip to play, use .clips for a list");
+
+    const { voiceChannel } = message.member;
+
+    if (!voiceChannel) {
+      return message.reply('please join a voice channel first!');
+    }
+    voiceChannel.join().then(connection =>
+    {
+      const stream = ytdl(clip, { filter: 'audioonly' });
+      const dispatcher = connection.playStream(stream);
+      dispatcher.on('end', () => voiceChannel.leave());
+    });
+  }
+
+  if (command == "addclip") //default
+  {
+    if (args[0] == "default")
+    {
+      Object.keys(clipsDict).map(prop => {client.settings.set(message.guild.id, clipsDict[prop], prop)})
+      return message.channel.send(`All Default Clips have been added.`);
+    }
+
+    if (args.length != 2)
+      return message.channel.send("Invalid number of arguments, please use .lure for help")
+
+    client.settings.set(message.guild.id, args[1], args[0]);
+    message.channel.send(`Clip ${args[0]} has been added with value: ${args[1]}`);
+  }
+
+  if (command == "delclip") //all
+  {
+    if (args.length != 1)
+      return message.channel.send("Invalid number of arguments, please use .lure for help")
+
+    if (args[0] == "all")
+    {
+      Object.keys(guildConf).map(prop => {client.settings.remove(message.guild.id, prop)})
+      return message.channel.send(`All clips have been deleted.`);
+    }
+    else if (args[0] == "default")
+    {
+      Object.keys(clipsDict).map(prop => {client.settings.remove(message.guild.id, prop)})
+      return message.channel.send(`All Default clips have been deleted.`);
+    }
+
+    if(!client.settings.has(message.guild.id, args[0]))
+      return message.channel.send("Invalid clip name, please use .clips for a reference")
+
+    client.settings.remove(message.guild.id, args[0]);
+    message.channel.send(`Clip ${args[0]} has been deleted.`);
+  }
+
   if (command == "clips")
   {
-    var outputMsg = "";
-    var count = 1;
-    for (var tempKey in clipsDict)
-    {
-      outputMsg += tempKey;
-      if(count != Object.keys(clipsDict).length)
-        outputMsg += ", ";
-      count++;
-    }
-    message.channel.send(outputMsg);
+    // var outputMsg = "";
+    // var count = 1;
+    // for (var tempKey in clipsDict)
+    // {
+    //   outputMsg += tempKey;
+    //   if(count != Object.keys(clipsDict).length)
+    //     outputMsg += ", ";
+    //   count++;
+    // }
+    //message.channel.send(outputMsg);
+
+    var embed = new Discord.RichEmbed()
+    .setTitle("Clips")
+    .setColor(0xff8d00)
+    .setTimestamp()
+    .setFooter("Sent by Lure", client.user.avatarURL)
+
+    let configProps = Object.keys(guildConf).map(prop => {
+      return ` ${prop}`;
+    });
+
+    embed.setDescription(`${configProps}`)
+    message.channel.send(embed);
   }
 
   if (command == "stop")
