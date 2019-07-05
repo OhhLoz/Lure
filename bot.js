@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.2";
+const versionNumber = "1.2.3";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -63,6 +63,7 @@ client.on("message", async message =>
       .addField(".lure ping", "Displays the current version number of the bot", false)
       .addField(".lure contact", "Displays the contact information (if there are any bugs to report)", false)
       .addField(".lure stats", "Displays the statistics of the bot (servercount, usercount & channelcount)", false)
+      .addField(".lure invite", "Displays bot invite link", false)
       .addBlankField()
       .addField(".clip [arg]", "Plays a sound clip in a voice channel")
       .addField(".[clipname]", "Plays the specified clip, alternate command to .clip for faster typing")
@@ -99,6 +100,12 @@ client.on("message", async message =>
     else if (args[0] == "stats")
     {
       var outputStr = `Lure is currently serving ${client.users.filter(user => !user.bot).size} users, in ${client.channels.size} channels of ${client.guilds.size} servers. Alongside ${client.users.filter(user => user.bot).size} bot brothers.`;
+      //console.log(outputStr);
+      message.channel.send(outputStr);
+    }
+    else if (args[0] == "invite")
+    {
+      var outputStr = `https://discordapp.com/api/oauth2/authorize?client_id=546475480614699028&permissions=3476544&scope=bot`;
       //console.log(outputStr);
       message.channel.send(outputStr);
     }
