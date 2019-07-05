@@ -3,7 +3,7 @@ A personal pet project bot, made for the discord hack week. Currently a meme / s
 Plays&stores clips, connects to the reddit api to display text posts or images for both preset subreddits and custom commands.
 
 ## Getting Started
-[Invite me here!] (https://discordapp.com/api/oauth2/authorize?client_id=546475480614699028&permissions=3476544&scope=bot)
+[Invite me here!](https://discordapp.com/api/oauth2/authorize?client_id=546475480614699028&permissions=3476544&scope=bot)
 
 ## Built With
 
