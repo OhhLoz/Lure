@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.3";
+const versionNumber = "1.2.4";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -21,7 +21,22 @@ client.settings = new enmap({
 
 client.on("ready", () =>
 {
-  console.log(`Lure is currently serving ${client.users.filter(user => !user.bot).size} users, in ${client.channels.size} channels of ${client.guilds.size} servers. Alongside ${client.users.filter(user => user.bot).size} bot brothers.`);
+  var servercount = 0;
+  var usercount = 0;
+  var botcount = 0;
+  var channelcount = 0;
+  client.guilds.forEach((guild) =>
+  {
+    if (guild.id == "264445053596991498")
+      return;
+
+    servercount += 1;
+    channelcount += guild.channels.filter(channel => channel.type != 'category').size;
+    usercount += guild.members.filter(member => !member.user.bot).size;
+    botcount += guild.members.filter(member => member.user.bot).size;
+  })
+
+  console.log(`Lure is currently serving ${usercount} users, in ${channelcount} channels of ${servercount} servers. Alongside ${botcount} bot brothers.`);
   client.user.setActivity(`use .lure`);
 });
 
@@ -99,8 +114,22 @@ client.on("message", async message =>
     }
     else if (args[0] == "stats")
     {
-      var outputStr = `Lure is currently serving ${client.users.filter(user => !user.bot).size} users, in ${client.channels.size} channels of ${client.guilds.size} servers. Alongside ${client.users.filter(user => user.bot).size} bot brothers.`;
-      //console.log(outputStr);
+      var servercount = 0;
+      var usercount = 0;
+      var botcount = 0;
+      var channelcount = 0;
+      client.guilds.forEach((guild) =>
+      {
+        if (guild.id == "264445053596991498")
+          return;
+
+        servercount += 1;
+        channelcount += guild.channels.filter(channel => channel.type != 'category').size;
+        usercount += guild.members.filter(member => !member.user.bot).size;
+        botcount += guild.members.filter(member => member.user.bot).size;
+      })
+
+      var outputStr = `Lure is currently serving ${usercount} users, in ${channelcount} channels of ${servercount} servers. Alongside ${botcount} bot brothers.`;
       message.channel.send(outputStr);
     }
     else if (args[0] == "invite")
