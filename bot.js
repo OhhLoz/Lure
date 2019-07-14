@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.4";
+const versionNumber = "1.2.5";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -18,6 +18,15 @@ client.settings = new enmap({
   autoFetch: true,
   cloneLevel: 'deep'
 });
+
+let getTime = (milli) => {
+  let time = new Date(milli);
+  let hours = time.getUTCHours();
+  let minutes = time.getUTCMinutes();
+  let seconds = time.getUTCSeconds();
+  let milliseconds = time.getUTCMilliseconds();
+  return hours + "H " + minutes + "M " + seconds + "S";
+}
 
 client.on("ready", () =>
 {
@@ -74,11 +83,8 @@ client.on("message", async message =>
       .setTimestamp()
       .setFooter("Sent by Lure", client.user.avatarURL)
       .addField(".lure", "Lists all current commands", false)
-      .addField(".lure version", "Displays the current version number of the bot", false)
-      .addField(".lure ping", "Displays the current version number of the bot", false)
-      .addField(".lure contact", "Displays the contact information (if there are any bugs to report)", false)
-      .addField(".lure stats", "Displays the statistics of the bot (servercount, usercount & channelcount)", false)
-      .addField(".lure invite", "Displays bot invite link", false)
+      .addField(".lure ping", "Displays the current bot latency", false)
+      .addField(".lure stats", "Displays bot statistics, invite link and contact information", false)
       .addBlankField()
       .addField(".clip [arg]", "Plays a sound clip in a voice channel")
       .addField(".[clipname]", "Plays the specified clip, alternate command to .clip for faster typing")
@@ -100,18 +106,6 @@ client.on("message", async message =>
       const m = await message.channel.send("Calculating");
       m.edit(`Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
     }
-    else if (args[0] == "version")
-    {
-      var outputStr = `Lure is currently running version: ${versionNumber}`;
-      //console.log(outputStr);
-      message.channel.send(outputStr);
-    }
-    else if (args[0] == "contact")
-    {
-      var outputStr = `The best method of contacting is on the github page, issues can be made here: https://github.com/OhhLoz/Lure`;
-      //console.log(outputStr);
-      message.channel.send(outputStr);
-    }
     else if (args[0] == "stats")
     {
       var servercount = 0;
@@ -122,27 +116,30 @@ client.on("message", async message =>
       {
         if (guild.id == "264445053596991498")
           return;
-
         servercount += 1;
         channelcount += guild.channels.filter(channel => channel.type != 'category').size;
         usercount += guild.members.filter(member => !member.user.bot).size;
-        botcount += guild.members.filter(member => member.user.bot).size;
       })
-
-      var outputStr = `Lure is currently serving ${usercount} users, in ${channelcount} channels of ${servercount} servers. Alongside ${botcount} bot brothers.`;
-      message.channel.send(outputStr);
-    }
-    else if (args[0] == "invite")
-    {
-      var outputStr = `https://discordapp.com/api/oauth2/authorize?client_id=546475480614699028&permissions=3476544&scope=bot`;
-      //console.log(outputStr);
-      message.channel.send(outputStr);
+      var embed = new Discord.RichEmbed()
+      .setTitle("Bot Stats")
+      .setColor(0xff8d00)
+      .setTimestamp()
+      .setThumbnail(client.user.avatarURL)
+      .setFooter("Sent by Lure", client.user.avatarURL)
+      .addField("Server Count", servercount, true)
+      .addField("Channel Count", channelcount, true)
+      .addField("User Count", usercount, true)
+      .addField("Bot User Count", botcount, true)
+      .addField("Version", versionNumber, true)
+      .addField("Uptime", getTime(client.uptime), true)
+      .addField("Invite Link", "[Invite](https://discordapp.com/api/oauth2/authorize?client_id=546475480614699028&permissions=3476544&scope=bot)", true)
+      .addField("Contact Link", "[GitHub](https://github.com/OhhLoz/Lure)", true)
+      message.channel.send(embed);
     }
     else
     {
       message.channel.send("Invalid Command, use .lure for commands");
     }
-
   }
 
   // VOICE COMMANDS
@@ -159,8 +156,6 @@ client.on("message", async message =>
         return message.channel.send("Please enter a valid clip to play, use .clips for a list");
 
       const { voiceChannel } = message.member;
-
-
 
       if (!voiceChannel) {
         return message.reply('please join a voice channel first!');
