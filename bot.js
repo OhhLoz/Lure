@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.5";
+const versionNumber = "1.2.6";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -119,6 +119,7 @@ client.on("message", async message =>
         servercount += 1;
         channelcount += guild.channels.filter(channel => channel.type != 'category').size;
         usercount += guild.members.filter(member => !member.user.bot).size;
+        botcount += guild.members.filter(member => member.user.bot).size;
       })
       var embed = new Discord.RichEmbed()
       .setTitle("Bot Stats")
