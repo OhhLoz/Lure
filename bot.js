@@ -8,7 +8,7 @@ const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
-const versionNumber = "1.2.6";
+const versionNumber = "1.2.7";
 
 const redditPrefix = "https://www.reddit.com";
 
@@ -63,6 +63,9 @@ client.on("message", async message =>
 {
   // Ignore other bots.
   if(message.author.bot) return;
+
+  if(message.content.includes("u sux"))
+    message.reply("no u");
 
   // Ignore any message that does not start with our prefix
   if(message.content.indexOf(config.prefix) !== 0) return;
