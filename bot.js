@@ -4,7 +4,6 @@ const ytdl = require('ytdl-core');
 const snekfetch = require('snekfetch');
 const enmap = require("enmap");
 
-const config = require("./config.json");
 const clipsDict = require("./clips.json");
 const redditDict = require("./reddit.json");
 
@@ -68,12 +67,12 @@ client.on("message", async message =>
     message.reply("no u");
 
   // Ignore any message that does not start with our prefix
-  if(message.content.indexOf(config.prefix) !== 0) return;
+  if(message.content.indexOf(process.env.prefix) !== 0) return;
 
   const guildConf = client.settings.ensure(message.guild.id, clipsDict);
 
   // Separate our command names, and command arguments
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+  const args = message.content.slice(process.env.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
 
   if (command == "lure")
@@ -356,4 +355,4 @@ client.on("message", async message =>
   }
 });
 
-client.login(config.token);
+client.login(process.env.BOT_TOKEN);
