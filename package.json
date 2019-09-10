@@ -1,0 +1,25 @@
+{
+    "name": "lure",
+    "version": "1.0.0",
+    "description": "Discord bot",
+    "main": "bot.js",
+    "scripts": {
+      "start": "node bot.js"
+    },
+    "dependencies": {
+      "discord.js": "^11.5.1",
+      "snekfetch": "^4.0.4",
+      "ytdl-core": "^0.29.6",
+      "enmap": "^5.1.2",
+      "node-opus": "^0.3.2",
+      "ffmpeg-binaries": "^4.0.0"
+    },
+    "engines": {
+      "node": "8.x"
+    },
+    "repository": {
+      "url": "https://github.com/OhhLoz/Lure"
+    },
+    "license": "MIT",
+    "keywords": []
+  }
