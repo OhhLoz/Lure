@@ -1,25 +1,24 @@
 {
-    "name": "lure",
-    "version": "1.0.0",
+    "name": "Lure",
+    "version": "1.2.8",
     "description": "Discord bot",
     "main": "bot.js",
     "scripts": {
-      "start": "node bot.js"
+        "start": "node bot.js"
     },
     "dependencies": {
-      "discord.js": "^11.5.1",
-      "snekfetch": "^4.0.4",
-      "ytdl-core": "^0.29.6",
-      "enmap": "^5.1.2",
-      "node-opus": "^0.3.2",
-      "ffmpeg-binaries": "^4.0.0"
+        "@discordjs/voice": "^0.9.0",
+        "discord.js": "^13.6.0",
+        "ffmpeg": "^0.0.4",
+        "ffmpeg-static": "^4.4.1",
+        "libsodium-wrappers": "^0.7.10"
     },
     "engines": {
-      "node": "8.x"
+        "node": "16.3.0"
     },
     "repository": {
-      "url": "https://github.com/OhhLoz/Lure"
+        "url": "https://github.com/OhhLoz/Lure"
     },
     "license": "MIT",
     "keywords": []
-  }
+}
